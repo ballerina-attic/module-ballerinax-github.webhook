@@ -409,7 +409,7 @@ public type Commit record {|
     string message;
     CommitAuthor author;
     string url;
-    boolean distinct;
+    boolean 'distinct;
 |};
 
 public type CommitAuthor record {|

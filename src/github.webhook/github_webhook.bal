@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
-import ballerina/ 'lang\.object as lang;
+import ballerina/lang.'object as lang;
 import ballerina/websub;
 
 # The WebSub Hub URL for GitHub.
@@ -34,9 +34,9 @@ public type Listener object {
 
     public WebhookListenerConfiguration? webhookListenerConfig = ();
 
-    private websub:Listener websubListener;
+    private websub:Listener? websubListener = ();
 
-    public function __init(int port, WebhookListenerConfiguration? config = ()) {
+    public function init(int port, WebhookListenerConfiguration? config = ()) {
         self.webhookListenerConfig = config;
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier: websub: TOPIC_ID_HEADER_AND_PAYLOAD,
@@ -58,23 +58,38 @@ public type Listener object {
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        return self.websubListener.__attach(s, name);
+        websub:Listener? webhookListener = self.websubListener;
+        if (webhookListener  is websub:Listener) {
+            return webhookListener.__attach(s, name);
+        }
     }
 
     public function __detach(service s) returns error? {
-        return self.websubListener.__detach(s);
+        websub:Listener? webhookListener = self.websubListener;
+        if (webhookListener  is websub:Listener) {
+            return webhookListener.__detach(s);
+        }
     }
 
     public function __start() returns error? {
-        return self.websubListener.__start();
+        websub:Listener? webhookListener = self.websubListener;
+        if (webhookListener  is websub:Listener) {
+            return webhookListener.__start();
+        }
     }
 
     public function __gracefulStop() returns error? {
-        return self.websubListener.__gracefulStop();
+        websub:Listener? webhookListener = self.websubListener;
+        if (webhookListener  is websub:Listener) {
+            return webhookListener.__gracefulStop();
+        }
     }
 
     public function __immediateStop() returns error? {
-        return self.websubListener.__immediateStop();
+        websub:Listener? webhookListener = self.websubListener;
+        if (webhookListener  is websub:Listener) {
+            return webhookListener.__immediateStop();
+        }
     }
 };
 
