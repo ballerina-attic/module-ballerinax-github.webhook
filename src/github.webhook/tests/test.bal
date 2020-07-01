@@ -154,7 +154,7 @@ function testWebhookNotificationOnIssueAssignment() {
 
 @test:Config {
     dependsOn: ["testWebhookNotificationOnIssueCreation"],
-    enable: false // Disable the test as Github module hasn't any function to edit the issue
+    enable: false // Disable the test as ballerinax/github module hasn't any function to edit the issue
 }
 function testWebhookNotificationOnIssueEdited() {
     test:assertTrue(issueEditedNotified, msg = "expected an issue edited notification");
