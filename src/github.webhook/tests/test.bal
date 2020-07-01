@@ -45,11 +45,11 @@ oauth2:DirectTokenConfig oauth2Config = {
 oauth2:OutboundOAuth2Provider oauth2Provider = new(oauth2Config);
 http:BearerAuthHandler bearerHandler = new(oauth2Provider);
 @websub:SubscriberServiceConfig {
-    path: "/webhook",
+    path: "/github",
     subscribeOnStartUp: true,
     target: [HUB, config:getAsString("GITHUB_TOPIC")],
     secret: config:getAsString("GITHUB_SECRET"),
-    callback: config:getAsString("GITHUB_CALLBACK"), // only needs to be specified if not http(s)://<HOST>:<PORT>/<path>
+    callback: config:getAsString("GITHUB_CALLBACK"),
     hubClientConfig: {
         auth: {
             authHandler: bearerHandler
@@ -59,12 +59,12 @@ http:BearerAuthHandler bearerHandler = new(oauth2Provider);
 service githubWebhook on githubListener {
  resource function onPing(websub:Notification notification, PingEvent event) {
      webhookRegistrationNotified = true;
-     webhookHookType = event.hook.'type;
+     webhookHookType = <@untainted> event.hook.'type;
  }
 
  resource function onIssuesOpened(websub:Notification notification, IssuesEvent event) {
      issueCreationNotified = true;
-     issueTitle = event.issue.title;
+     issueTitle = <@untainted> event.issue.title;
  }
 
  resource function onIssuesLabeled(websub:Notification notification, IssuesEvent event) {
@@ -73,18 +73,18 @@ service githubWebhook on githubListener {
      foreach Label label in event.issue.labels {
          receivedIssueLabels += label.name;
      }
-     issueLabels = receivedIssueLabels;
+     issueLabels = <@untainted> receivedIssueLabels;
  }
 
  resource function onIssuesAssigned(websub:Notification notification, IssuesEvent event) {
      issueAssignedNotified = true;
      User assignee = <User> event.issue.assignee;
-     issueAssignee = assignee.login;
+     issueAssignee = <@untainted> assignee.login;
  }
 
  resource function onIssuesEdited(websub:Notification notification, IssuesEvent event) {
      issueEditedNotified = true;
-     issueChanges = event.changes;
+     issueChanges = <@untainted> event["changes"];
  }
 }
 
@@ -107,7 +107,7 @@ string[] createdIssueLabelArray = ["bug", "critical"];
 string createdIssueAssignee = createdIssueUsername;
 
 @test:Config {
- dependsOn: ["testWebhookRegistration"]
+    dependsOn: ["testWebhookRegistration"]
 }
 function testWebhookNotificationOnIssueCreation() {
     github:GitHubConfiguration gitHubConfig = {
@@ -133,7 +133,7 @@ function testWebhookNotificationOnIssueCreation() {
 }
 
 @test:Config {
- dependsOn: ["testWebhookNotificationOnIssueCreation"]
+    dependsOn: ["testWebhookNotificationOnIssueCreation"]
 }
 function testWebhookNotificationOnIssueLabeling() {
     string createdIssueLabelString = "";
@@ -145,7 +145,7 @@ function testWebhookNotificationOnIssueLabeling() {
 }
 
 @test:Config {
- dependsOn: ["testWebhookNotificationOnIssueCreation"]
+    dependsOn: ["testWebhookNotificationOnIssueCreation"]
 }
 function testWebhookNotificationOnIssueAssignment() {
     test:assertTrue(issueAssignedNotified, msg = "expected an issue assigned notification");
@@ -153,21 +153,12 @@ function testWebhookNotificationOnIssueAssignment() {
 }
 
 @test:Config {
- dependsOn: ["testWebhookNotificationOnIssueCreation"]
+    dependsOn: ["testWebhookNotificationOnIssueCreation"],
+    enable: false // Disable the test as Github module hasn't any function to edit the issue
 }
 function testWebhookNotificationOnIssueEdited() {
     test:assertTrue(issueEditedNotified, msg = "expected an issue edited notification");
     if (issueChanges is ()) {
         test:assertFail(msg = "expected `issueChanges` to not be `()`");
     }
-
-    Changes setIssueChanges = <Changes> issueChanges;
-    boolean changesEmpty = true;
-    foreach var value in setIssueChanges {
-    if (!(value is ())) {
-        changesEmpty = false;
-        break;
-    }
-    }
-    test:assertTrue(changesEmpty, msg = "expected changes to be empty");
 }

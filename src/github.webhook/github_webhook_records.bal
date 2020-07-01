@@ -17,6 +17,7 @@
 public type User record {|
     string login;
     int id;
+    string node_id?;
     string avatar_url;
     string gravatar_id;
     string url;
@@ -98,12 +99,16 @@ public type Repository record {|
     boolean has_pages;
     int forks_count;
     string? mirror_url;
+    string deployments_url?;
     int open_issues_count;
     string? license;
     int forks;
     int open_issues;
     int watchers;
     string default_branch;
+    boolean archived?;
+    boolean disabled?;
+    boolean has_projects?;
 |};
 
 public type Page record {|
@@ -138,6 +143,7 @@ public type Issue record {|
     string updated_at;
     string? closed_at;
     string author_association;
+    string? active_lock_reason;
     string body;
 |};
 
@@ -160,6 +166,7 @@ public type Label record {|
     string url;
     string name;
     string color;
+    string? description;
     boolean 'default;
 |};
 
@@ -183,14 +190,14 @@ public type Milestone record {|
 |};
 
 public type Changes record {|
-    Name? name;
-    Title? title;
-    Body? body;
-    Color? color;
-    Permission? permission;
-    Description? description;
-    DueOn? due_on;
-    Note? note;
+    Name name?;
+    Title title?;
+    Body body;
+    Color color?;
+    Permission permission?;
+    Description description?;
+    DueOn due_on?;
+    Note note?;
 |};
 
 public type Title record {|
@@ -471,7 +478,7 @@ public type Hook record {|
 
 public type HookConfig record {|
     string content_type;
-    string secret;
+    string secret?;
     string url;
     string insecure_ssl;
 |};
@@ -499,7 +506,9 @@ public type IssueCommentEvent record {|
 public type IssuesEvent record {|
     string action;
     Issue issue;
-    Changes? changes;
+    Changes changes?;
+    Label label?;
+    User assignee?;
     Repository repository;
     User sender;
 |};
@@ -507,7 +516,8 @@ public type IssuesEvent record {|
 public type LabelEvent record {|
     string action;
     Label label;
-    Changes? changes;
+    Issue issue;
+    Changes changes?;
     Repository repository;
     User sender;
 |};
@@ -523,7 +533,7 @@ public type MilestoneEvent record {|
 public type PullRequestEvent record {|
     string action;
     int number;
-    Changes? changes;
+    Changes changes?;
     PullRequest pull_request;
     Repository repository;
     User sender;
@@ -539,7 +549,7 @@ public type PullRequestReviewEvent record {|
 
 public type PullRequestReviewCommentEvent record {|
     string action;
-    Changes? changes;
+    Changes changes?;
     PullRequest pull_request;
     PullRequestReviewComment comment;
     Repository repository;
@@ -567,6 +577,7 @@ public type ReleaseEvent record {|
     Release release;
     Repository repository;
     User sender;
+    Changes changes;
 |};
 
 public type WatchEvent record {|

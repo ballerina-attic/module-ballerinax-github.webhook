@@ -34,7 +34,7 @@ public type Listener object {
 
     public WebhookListenerConfiguration? webhookListenerConfig = ();
 
-    private websub:Listener? websubListener = ();
+    private websub:Listener websubListener;
 
     public function init(int port, WebhookListenerConfiguration? config = ()) {
         self.webhookListenerConfig = config;
@@ -58,38 +58,23 @@ public type Listener object {
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        websub:Listener? webhookListener = self.websubListener;
-        if (webhookListener  is websub:Listener) {
-            return webhookListener.__attach(s, name);
-        }
+        return self.websubListener.__attach(s, name);
     }
 
     public function __detach(service s) returns error? {
-        websub:Listener? webhookListener = self.websubListener;
-        if (webhookListener  is websub:Listener) {
-            return webhookListener.__detach(s);
-        }
+        return self.websubListener.__detach(s);
     }
 
     public function __start() returns error? {
-        websub:Listener? webhookListener = self.websubListener;
-        if (webhookListener  is websub:Listener) {
-            return webhookListener.__start();
-        }
+        return self.websubListener.__start();
     }
 
     public function __gracefulStop() returns error? {
-        websub:Listener? webhookListener = self.websubListener;
-        if (webhookListener  is websub:Listener) {
-            return webhookListener.__gracefulStop();
-        }
+        return self.websubListener.__gracefulStop();
     }
 
     public function __immediateStop() returns error? {
-        websub:Listener? webhookListener = self.websubListener;
-        if (webhookListener  is websub:Listener) {
-            return webhookListener.__immediateStop();
-        }
+        return self.websubListener.__immediateStop();
     }
 };
 
