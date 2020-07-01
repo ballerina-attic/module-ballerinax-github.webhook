@@ -1,27 +1,16 @@
-# module-ballerinax-github.webhook
+Registers a GitHub webhook.
+
+# Module Overview
+
 This module allows registering a [GitHub webhook](https://developer.github.com/webhooks/) programmatically, 
 to subscribe to interested GitHub events.
 
-The webhook callback is represented by a service that listens on a listener of type `webhook:Listener`.
+The webhook callback is represented by a service that listens on a listener of type `githubwebhook3:Listener`.
 The resources allowed in this service map to possible GitHub events (e.g., `onIssueCommentCreated`, 
 `onIssueCommentEdited`, `onIssuesAssigned`, `onIssuesClosed`, etc.). 
 The first parameter of each resource is the generic `websub:Notification` record. The second parameter of each 
-resource is a `record`, mapping the `json` payload that is expected with each event (e.g., `webhook:IssueCommentEvent`, 
-`webhook:IssuesEvent`, etc.).
-
-The following sections provide you details on how to use the `webhook`.
-
-- [Compatibility](#compatibility)
-- [Feature Overview](#feature-overview)
-- [Getting Started](#getting-started)
-- [Sample](#sample)
-
-## Compatibility
-|                             |       Version               |
-|:---------------------------:|:---------------------------:|
-| Ballerina Language          |     Swan Lake Preview1      |
-
-## Feature Overview
+resource is a `record`, mapping the `json` payload that is expected with each event (e.g., `githubwebhook3:IssueCommentEvent`, 
+`githubwebhook3:IssuesEvent`, etc.).
 
 This module supports the following functionalities:
 - Programmatic subscription (requires a GitHub access token). Alternatively, a webhook can also be registered via the UI.
@@ -31,7 +20,10 @@ be done for each content delivery request.)
 - Programmatic response to all content delivery requests - an appropriate response is sent for all content delivery 
 requests, prior to dispatching them to the relevant resource.
 
-## Getting Started
+## Compatibility
+|                             |       Version               |
+|:---------------------------:|:---------------------------:|
+| Ballerina Language          |    Swan Lake Preview1       |
 
 ### Prerequisites
 
@@ -43,19 +35,26 @@ requests, prior to dispatching them to the relevant resource.
 
 > Need to be start the `ngork` with `webhook:Listener` service port by using the command `./ngrok http 8080`
 
-### Sample
+## Sample
 
-Access token, callback URL(eg: `http://1c9b0ff10cea.ngrok.io/webhook`), username and repository name need to be specified when configuring the subscription parameters of the service annotation.
+First, import the `ballerinax/github.webhook` module into the Ballerina project.
+
+```ballerina
+import ballerinax/github.webhook;
+```
+
+Access token, callback URL(eg: `http://1c9b0ff10cea.ngrok.io/github`), username and repository name need to be specified when configuring the subscription parameters of the service annotation.
+
 ```ballerina
 oauth2:OutboundOAuth2Provider githubOAuth2Provider = new ({
-    accessToken: "<GH_ACCESS_TOKEN>"
+    accessToken: "<GITHUB_ACCESS_TOKEN>"
 });
 http:BearerAuthHandler githubOAuth2Handler = new (githubOAuth2Provider);
 
 @websub:SubscriberServiceConfig {
-    path: "/webhook",
+    path: "/github",
     subscribeOnStartUp: true,
-    target: [webhook:HUB, "https://github.com/<GH_USERNAME>/<GH_REPO_NAME>/events/*.json"],
+    target: [webhook:HUB, "https://github.com/<GITHUB_USERNAME>/<GITHUB_REPO_NAME>/events/*.json"],
     hubClientConfig: {
         auth: {
             authHandler: githubOAuth2Handler
@@ -64,10 +63,6 @@ http:BearerAuthHandler githubOAuth2Handler = new (githubOAuth2Provider);
     callback: "<CALLBACK_URL>"
 }
 ```
-
-Introducing a service as follows, with the value of the `subscribeOnStartUp` parameter set to `true` in the service annotation would result in 
-a subscription request being sent to the `webhook:HUB` for the specified topic. If successful, GitHub would send a 
-`ping` request that could be received by introducing an `onPing` resource.
 
 The following sample code also accepts notifications when an issue is opened (`onIssuesOpened`) and when the repository is starred (`onWatch`).
 
@@ -97,7 +92,7 @@ http:BearerAuthHandler githubOAuth2Handler = new (githubOAuth2Provider);
     callback: "<CALLBACK_URL>"
 }
 service githubWebhook on githubListener {
-    
+
     resource function onPing(websub:Notification notification, webhook:PingEvent event) {
         io:println("[onPing] Webhook Registered: ", event);
     }

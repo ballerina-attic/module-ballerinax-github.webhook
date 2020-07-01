@@ -1,0 +1,9 @@
+[project]
+org-name = "ballerinax"
+version = "0.9.0"
+license= ["Apache-2.0"]
+authors = ["Ballerina"]
+keywords = ["github", "webhook", "connector", "ballerina"]
+repository = "https://github.com/ballerina-platform/module-ballerinax-github.webhook"
+
+[dependencies]
