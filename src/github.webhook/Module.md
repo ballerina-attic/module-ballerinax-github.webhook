@@ -40,12 +40,11 @@ requests, prior to dispatching them to the relevant resource.
 First, import the `ballerinax/github.webhook as webhook` module into the Ballerina project.
 
 ```ballerina
-import ballerinax/github.webhook as webhook;
+import ballerinax/github.webhook;
 ```
 
 Access token, callback URL(eg: `http://1c9b0ff10cea.ngrok.io/github`), username and repository name need to be specified when configuring the subscription parameters of the service annotation.
 
-```ballerina
 ```ballerina
 oauth2:OutboundOAuth2Provider githubOAuth2Provider = new ({
     accessToken: "<GITHUB_ACCESS_TOKEN>"
@@ -72,7 +71,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/oauth2;
 import ballerina/websub;
-import wso2/githubwebhook3;
+import ballerinax/github.webhook;
 
 listener webhook:Listener githubListener = new (8080);
 
@@ -82,15 +81,15 @@ oauth2:OutboundOAuth2Provider githubOAuth2Provider = new ({
 http:BearerAuthHandler githubOAuth2Handler = new (githubOAuth2Provider);
 
 @websub:SubscriberServiceConfig {
-   path: "/webhook",
-   subscribeOnStartUp: true,
-   target: [githubwebhook3:HUB, "https://github.com/<GH_USERNAME>/<GH_REPO_NAME>/events/*.json"],
-   hubClientConfig: {
-       auth: {
-           authHandler: githubOAuth2Handler
-       }
-   },
-   callback: "<CALLBACK_URL>"
+    path: "/webhook",
+    subscribeOnStartUp: true,
+    target: [webhook:HUB, "https://github.com/<GH_USERNAME>/<GH_REPO_NAME>/events/*.json"],
+    hubClientConfig: {
+        auth: {
+            authHandler: githubOAuth2Handler
+        }
+    },
+    callback: "<CALLBACK_URL>"
 }
 service githubWebhook on githubListener {
 
