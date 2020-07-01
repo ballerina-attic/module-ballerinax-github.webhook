@@ -37,7 +37,7 @@ requests, prior to dispatching them to the relevant resource.
 
 ## Sample
 
-First, import the `ballerinax/github.webhook as webhook` module into the Ballerina project.
+First, import the `ballerinax/github.webhook` module into the Ballerina project.
 
 ```ballerina
 import ballerinax/github.webhook;
